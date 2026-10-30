@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10141d">
+<meta name="description" content="Tu panel personal de estadísticas de fútbol">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<title>MatchLab · Estadísticas</title>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><div class="brand-mark">M</div><div><b>MatchLab</b><small>FÚTBOL · DATOS Y TENDENCIAS</small></div></div>
+  <span class="local-pill"><i></i> MODO LOCAL</span>
+</header>
+<main>
+  <section class="hero">
+    <div><p class="eyebrow">TU CENTRO DE ANÁLISIS</p><h1>Estadísticas claras.<br><span>Mejores decisiones.</span></h1><p class="muted">Guarda partidos, compara equipos y detecta tendencias.</p></div>
+    <div class="hero-ball">⚽</div>
+  </section>
+  <nav class="tabs" aria-label="Secciones">
+    <button class="tab active" data-tab="dashboard">Resumen</button>
+    <button class="tab" data-tab="compare">Comparador</button>
+    <button class="tab" data-tab="matches">Partidos</button>
+    <button class="tab" data-tab="settings">Datos</button>
+  </nav>
+
+  <section id="dashboard" class="view active">
+    <div class="section-head"><div><p class="eyebrow">VISTA GENERAL</p><h2>Tu seguimiento</h2></div><button class="primary small" id="newMatchTop">＋ Añadir partido</button></div>
+    <div class="stats-grid">
+      <article class="metric"><span>Partidos guardados</span><strong id="totalMatches">0</strong><small>En tu base local</small></article>
+      <article class="metric"><span>Competiciones</span><strong id="leagueCount">9</strong><small>Seleccionadas</small></article>
+      <article class="metric"><span>Equipos registrados</span><strong id="teamCount">0</strong><small>Con datos guardados</small></article>
+    </div>
+    <div class="panel">
+      <div class="section-head"><div><p class="eyebrow">TU BASE DE DATOS</p><h3>Últimos partidos añadidos</h3></div><button class="text-btn" data-goto="matches">Ver todos →</button></div>
+      <div id="recentMatches" class="match-list empty">Todavía no has añadido partidos. Puedes introducirlos manualmente o importar un CSV.</div>
+    </div>
+    <div class="notice"><b>Importante:</b> esta primera versión funciona sin coste y guarda los datos en este dispositivo. Aún no descarga estadísticas automáticamente. Los datos de demostración no están activados para evitar confundirlos con datos reales.</div>
+  </section>
+
+  <section id="compare" class="view">
+    <div class="section-head"><div><p class="eyebrow">ANÁLISIS DE ENFRENTAMIENTOS</p><h2>Comparador</h2></div></div>
+    <div class="panel">
+      <div class="form-grid">
+        <label>Equipo local<select id="teamA"><option value="">Selecciona equipo</option></select></label>
+        <label>Equipo visitante<select id="teamB"><option value="">Selecciona equipo</option></select></label>
+        <label class="wide">Competición<select id="compareLeague"><option value="">Todas las competiciones</option></select></label>
+        <label class="wide">Muestra<select id="sampleSize"><option value="5">Últimos 5 partidos</option><option value="10" selected>Últimos 10 partidos</option><option value="0">Toda la muestra disponible</option></select></label>
+      </div>
+      <button class="primary full" id="runCompare">Comparar equipos</button>
+    </div>
+    <div id="compareResult" class="compare-result empty">Añade partidos con estadísticas para generar una comparación.</div>
+  </section>
+
+  <section id="matches" class="view">
+    <div class="section-head"><div><p class="eyebrow">HISTÓRICO</p><h2>Partidos guardados</h2></div><button class="primary small" id="newMatch">＋ Añadir</button></div>
+    <div class="filters"><input id="searchMatches" placeholder="Buscar equipo o competición…"><select id="filterLeague"><option value="">Todas las competiciones</option></select></div>
+    <div id="allMatches" class="match-list empty">No hay partidos guardados.</div>
+  </section>
+
+  <section id="settings" class="view">
+    <div class="section-head"><div><p class="eyebrow">CONFIGURACIÓN</p><h2>Datos y competiciones</h2></div></div>
+    <div class="panel">
+      <h3>Competiciones seguidas</h3><p class="muted">Estas son las nueve competiciones configuradas para tu proyecto.</p>
+      <div id="leagueChips" class="chips"></div>
+    </div>
+    <div class="panel">
+      <h3>Importar / exportar</h3><p class="muted">Puedes guardar una copia de tus datos o importar un CSV con estadísticas de partidos.</p>
+      <div class="button-row"><button class="secondary" id="exportJson">Exportar copia JSON</button><label class="secondary file-button">Importar CSV<input type="file" id="importCsv" accept=".csv,text/csv"></label></div>
+      <p class="tiny muted">CSV: date,league,home,away,home_goals,away_goals,home_corners,away_corners,home_shots_on_target,away_shots_on_target,home_yellows,away_yellows</p>
+    </div>
+    <div class="panel">
+      <h3>Privacidad y almacenamiento</h3><p class="muted">Los partidos se guardan en el almacenamiento local del navegador. No se envían a ningún servidor.</p>
+      <button class="danger" id="clearData">Borrar todos los partidos</button>
+    </div>
+  </section>
+</main>
+
+<dialog id="matchDialog">
+  <form id="matchForm" method="dialog">
+    <div class="dialog-head"><div><p class="eyebrow">NUEVO REGISTRO</p><h2>Añadir partido</h2></div><button type="button" class="close" id="closeDialog">×</button></div>
+    <div class="form-grid">
+      <label>Fecha<input type="date" id="date" required></label>
+      <label>Competición<select id="league" required></select></label>
+      <label>Equipo local<input id="home" required placeholder="Ej. Villarreal"></label>
+      <label>Equipo visitante<input id="away" required placeholder="Ej. Espanyol"></label>
+      <label>Goles local<input id="hg" type="number" min="0" placeholder="0"></label>
+      <label>Goles visitante<input id="ag" type="number" min="0" placeholder="0"></label>
+      <label>Córners local<input id="hc" type="number" min="0" placeholder="—"></label>
+      <label>Córners visitante<input id="ac" type="number" min="0" placeholder="—"></label>
+      <label>Tiros a puerta local<input id="hs" type="number" min="0" placeholder="—"></label>
+      <label>Tiros a puerta visitante<input id="as" type="number" min="0" placeholder="—"></label>
+      <label>Amarillas local<input id="hy" type="number" min="0" placeholder="—"></label>
+      <label>Amarillas visitante<input id="ay" type="number" min="0" placeholder="—"></label>
+    </div>
+    <p class="tiny muted">Deja en blanco las estadísticas que no tengas. Un campo vacío se guarda como dato no disponible, no como cero.</p>
+    <button class="primary full" type="submit">Guardar partido</button>
+  </form>
+</dialog>
+<footer>MatchLab · Primera versión · Datos locales en tu dispositivo</footer>
+<script src="app.js"></script>
+</body></html>
